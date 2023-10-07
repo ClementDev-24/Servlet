@@ -1,0 +1,53 @@
+package com.tts;
+
+import java.io.*;
+import java.net.Socket;
+import java.util.Scanner;
+
+import com.tts.Server.Student;
+
+public class Receiver {
+  //  private static final String SERVER_IP = "localhost";
+    //private static final int SERVER_PORT = 12346;
+
+    public static void main(String[] args) {
+        try {
+            Scanner scanner = new Scanner(System.in);
+            Socket socket = new Socket("localhost", 12346);
+
+            ObjectOutputStream oos = new ObjectOutputStream(socket.getOutputStream());
+            ObjectInputStream ois = new ObjectInputStream(socket.getInputStream());
+            
+            System.out.println("Connected to server. Enter command (add / fetch):");
+            String command = scanner.next();
+            oos.writeObject(command);// sends the string to server
+            
+            if ("add".equals(command)) {
+                System.out.println("Enter name:");
+                String name = scanner.next();
+                System.out.println("Enter ID:");
+                String id = scanner.next();
+                Student dataPacket = new Student(name, id);
+                oos.writeObject(dataPacket);
+                String response = (String) ois.readObject();
+                System.out.println(response);
+            } else if ("fetch".equals(command)) {
+                System.out.println("Enter ID to fetch data:");
+                String id = scanner.next();
+                oos.writeObject(id);
+                String name = (String) ois.readObject();
+                System.out.println("Data for ID " + id + ": " + name);
+            } else {
+                System.out.println("Invalid command.");
+            }
+
+            // Close the resources after use
+            ois.close();
+            oos.close();
+            socket.close();
+        } catch (IOException | ClassNotFoundException e) {
+            e.printStackTrace();
+        }
+    }
+}
+

@@ -1,0 +1,96 @@
+package com.tts;
+	import java.io.*;
+	import java.net.ServerSocket;
+	import java.net.Socket;
+	import java.util.HashMap;
+	import java.util.Map;
+	import java.io.Serializable;
+
+	public class Server {
+	    private static final String FILE_PATH = "C:\\Users\\P3INDW23\\Desktop\\Studentdata.txt";
+	    private static final String ADD_COMMAND = "add";
+	    private static final String FETCH_COMMAND = "fetch";
+
+	    public static void main(String[] args) {
+	        Map<String, String> dataMap = new HashMap<>();
+	        deserializeData(dataMap);
+
+	        try {
+	            ServerSocket serverSocket = new ServerSocket(12342);
+	            System.out.println("Server started. Listening on port 12345...");
+
+	            
+	                Socket socket = serverSocket.accept();
+	                System.out.println("Client connected: " + socket.getInetAddress());
+
+	            
+	        } catch (IOException e) {
+	            e.printStackTrace();
+	        }
+	    }
+
+	    private static void handleClient(Socket socket, Map<String, String> dataMap) {
+	        try (ObjectInputStream ois = new ObjectInputStream(socket.getInputStream());
+	             ObjectOutputStream oos = new ObjectOutputStream(socket.getOutputStream())) {
+
+	            String command = (String) ois.readObject();
+
+	            if (ADD_COMMAND.equals(command)) {
+	            	Student dataPacket = (Student) ois.readObject();
+	                dataMap.put(dataPacket.getId(), dataPacket.getName());
+	                serializeData(dataMap);
+	                oos.writeObject("Data added successfully.");
+	            } else if (FETCH_COMMAND.equals(command)) {
+	                String id = (String) ois.readObject();
+	                String name = dataMap.get(id);
+	                oos.writeObject(name != null ? name : "No data found for the given ID.");
+	            } else {
+	                oos.writeObject("Invalid command.");
+	            }
+
+	        } catch (IOException | ClassNotFoundException e) {
+	            e.printStackTrace();
+	        }
+	    }
+
+	    private static void serializeData(Map<String, String> dataMap) {
+	        try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(FILE_PATH))) {
+	            oos.writeObject(dataMap);
+	        } catch (IOException e) {
+	            e.printStackTrace();
+	        }
+	    }
+
+	    private static void deserializeData(Map<String, String> dataMap) {
+	        try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(FILE_PATH))) {
+	            Object obj = ois.readObject();
+	            if (obj instanceof Map) {
+	                dataMap.putAll((Map<String, String>) obj);
+	            }
+	        } catch (IOException | ClassNotFoundException e) {
+	            // Ignore if file doesn't exist or any other deserialization error
+	        }
+	    }
+	    static  class Student implements Serializable {
+		    private String name;
+		    private String id;
+
+		    public Student(String name, String id) {
+		        this.name = name;
+		        this.id = id;
+		    }
+
+		    public String getName() {
+		        return name;
+		    }
+
+		    public String getId() {
+		        return id;
+		    }
+		}
+	}
+
+	
+
+	
+

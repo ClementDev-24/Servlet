@@ -1,0 +1,289 @@
+package com.tts;
+
+import java.io.*;
+import java.net.Socket;
+import java.util.ArrayList;
+import java.util.Scanner;
+
+@SuppressWarnings("serial")
+class Request implements Serializable {
+
+	private String action;
+	private int studentId;
+	private Student student;
+	private String department;
+	private int minAge;
+	private int maxAge;
+	private int startId;
+	private int endId;
+	public String getAction() {
+		return action;
+	}
+
+	public void setAction(String action) {
+		this.action = action;
+	}
+
+	public int getStudentId() {
+		return studentId;
+	}
+
+	public void setStudentId(int studentId) {
+		this.studentId = studentId;
+	} 
+
+	public Student getStudent() {
+		return student;
+	}
+
+	public void setStudent(Student student) {
+		this.student = student;
+	}
+
+	public String getDepartment() {
+		return department;
+	}
+
+	public void setDepartment(String department) {
+		this.department = department;
+	}
+
+	public int getMinAge() {
+	    return minAge;
+	}
+
+	public void setMinAge(int minAge) {
+	    this.minAge = minAge;
+	}
+
+	public int getMaxAge() {
+	    return maxAge;
+	}
+
+	public void setMaxAge(int maxAge) {
+	    this.maxAge = maxAge;
+	}
+
+	public int getStartId() {
+	    return startId;
+	}
+
+	public void setStartId(int startId) {
+	    this.startId = startId;
+	}
+
+	public int getEndId() {
+	    return endId;
+	}
+
+	public void setEndId(int endId) {
+	    this.endId = endId;
+	}
+
+}
+
+@SuppressWarnings("serial")
+class Response implements Serializable {
+	private String message;
+	private ArrayList<Student> students;
+
+	public String getMessage() {
+		return message;
+	}
+
+	public void setMessage(String message) {
+		this.message = message;
+	}
+
+	public ArrayList<Student> getStudents() {
+		return students;
+	}
+
+	public void setStudents(ArrayList<Student> students) {
+		this.students = students;
+	}
+
+}
+
+public class Client {
+	public static void main(String[] args) {
+		final String SERVER_HOST = "localhost";
+		final int SERVER_PORT = 12348;
+
+		try {
+			Socket socket = new Socket(SERVER_HOST, SERVER_PORT);
+			ObjectOutputStream oos = new ObjectOutputStream(socket.getOutputStream());
+			ObjectInputStream ois = new ObjectInputStream(socket.getInputStream());
+			Scanner scanner = new Scanner(System.in);
+			while (true) {
+				System.out.println("\n1. Add Student\n2.Fetch student details\n3. Exit");
+				System.out.print("Enter your choice:  ");
+				int choice = scanner.nextInt();
+
+				if (choice == 1) {
+					System.out.println("Enter Student ID: ");
+					int studentId = scanner.nextInt();
+					System.out.println("Enter Name: ");
+					String name = scanner.next();
+					System.out.println("Enter Department: ");
+					String department = scanner.next();
+					System.out.println("Enter Age: ");
+					int age = scanner.nextInt();
+					System.out.println("Enter Email: ");
+					String email = scanner.next();
+
+					Student student = new Student(studentId, name, department, age, email);
+					Request request = new Request();
+					request.setAction("add");
+					request.setStudent(student);
+
+					oos.writeObject(request);
+
+					Response response = (Response) ois.readObject();
+					System.out.println(response.getMessage());
+
+					// for fetching
+				} else if (choice == 2) {
+					System.out.println("1. Get Students by ID\n2. Get Students by Department\n3. Filter Students by Age\n4. Filter Students by ID Range ");
+					int choice1 = scanner.nextInt();
+					if (choice1 == 1) {
+						System.out.println("Fetching student details using id");
+						System.out.println("Enter Student ID: ");
+						int studentId = scanner.nextInt();
+
+						Request request = new Request();
+						request.setAction("get_by_id");
+						request.setStudentId(studentId);
+
+						oos.writeObject(request);
+
+						Response response = (Response) ois.readObject();
+						ArrayList<Student> students = response.getStudents();
+						if (students.isEmpty()) {
+							System.out.println("No students found with ID : " + studentId);
+						} 
+						else {
+							System.out.println("Students with ID : " + studentId);
+							for (Student student : students) {
+								System.out.println("Name of the student : " + student.getName());
+								System.out.println("Department of the student : " + student.getDepartment());
+								System.out.println("Age of the student : " + student.getAge());
+								System.out.println("Email ID of the student : " + student.getEmail());
+								System.out.println();
+								System.out.println("++++++++++++++++++++++++++++++++++++++++++++++++++++++");
+								
+							}
+						}
+					}
+					else if (choice1 == 2) {
+						System.out.println("Fetching student details by department");
+						System.out.println("Enter Department: ");
+						String department = scanner.next();
+                         
+						
+						
+						Request request = new Request();
+						request.setAction("get_by_department");
+						request.setDepartment(department);
+
+						oos.writeObject(request);
+						
+						Response response = (Response) ois.readObject();
+						ArrayList<Student> students = response.getStudents();
+						
+						
+						
+						if (students.isEmpty()) {
+							System.out.println("No students found in department " + department);
+						} else {
+							
+							for (Student student : students) {
+								System.out.println("Id of the student : " + student.getStudentId());
+								System.out.println("Name of the student : " + student.getName());
+								System.out.println("Department of the student : " + student.getDepartment());
+								System.out.println("Age of the student : " + student.getAge());
+								System.out.println("Email ID of the student : " + student.getEmail());
+								System.out.println();
+								System.out.println("++++++++++++++++++++++++++++++++++++++++++++++++++++++");
+							}
+						}
+					} else if (choice1 == 3) {
+						
+		                    System.out.println("Filter Students by Age");
+		                    System.out.print("Enter minimum age: ");
+		                    int minAge = scanner.nextInt();
+		                    System.out.print("Enter maximum age: ");
+		                    int maxAge = scanner.nextInt();
+
+		                    Request request = new Request();
+		                    request.setAction("get_by_age");
+		                    request.setMinAge(minAge);
+		                    request.setMaxAge(maxAge);
+
+		                    oos.writeObject(request);
+
+		                    Response response = (Response) ois.readObject();
+		                    ArrayList<Student> students = response.getStudents();
+		                    if (students.isEmpty()) {
+		                        System.out.println("No students found within the specified age range.");
+		                    } else {
+		                        System.out.println("Students within the specified age range:");
+		                        for (Student student : students) {
+		                            System.out.println("Name: " + student.getName());
+		                            System.out.println("Department: " + student.getDepartment());
+		                            System.out.println("Age: " + student.getAge());
+		                            System.out.println("Email: " + student.getEmail());
+		                            System.out.println("----------------------------------------------");
+		                        }
+		                    }
+		                }
+		                
+		                else if (choice1 == 4) {
+		                    System.out.println("Filter Students by ID Range");
+		                    System.out.print("Enter start ID: ");
+		                    int startId = scanner.nextInt();
+		                    System.out.print("Enter end ID: ");
+		                    int endId = scanner.nextInt();
+
+		                    Request request = new Request();
+		                    request.setAction("get_by_id_range");
+		                    request.setStartId(startId);
+		                    request.setEndId(endId);
+
+		                    oos.writeObject(request);
+
+		                    Response response = (Response) ois.readObject();
+		                    ArrayList<Student> students = response.getStudents();
+		                    if (students.isEmpty()) {
+		                        System.out.println("No students found within the specified ID range.");
+		                    } else {
+		                        System.out.println("Students within the specified ID range:");
+		                        for (Student student : students) {
+		                            System.out.println("Name: " + student.getName());
+		                            System.out.println("Department: " + student.getDepartment());
+		                            System.out.println("Age: " + student.getAge());
+		                            System.out.println("Email: " + student.getEmail());
+		                            System.out.println("----------------------------------------------");
+		                        }
+		                    }
+		                }
+					 else {
+						System.out.println("Invalid choice. Please try again.");
+					}
+				}
+			
+				// fetching code ends
+				else if (choice == 3) {
+					break;
+				} else {
+					System.out.println("Invalid choice. Please try again.");
+				}
+			}
+			socket.close();
+			oos.close();
+			ois.close();
+		} catch (IOException | ClassNotFoundException e) {
+			e.printStackTrace();
+		}
+	}
+}
