@@ -1,0 +1,72 @@
+JSP
+
+* First download the tomcat 9.0 from the the website and install with the configuration as full the shutdown port must be 8005 
+  and the username and password as admin.
+* Download and install the eclipse enterprise edition then go to the window>preferences>server>runtime environment>
+ then choose the tom cat version and browse the location till the bin and copy the path before the bin (don't copy the bin path)
+* type (localhost:8080) in the URL then if the tomcat appears then the it works or available in your PC
+* In Eclipse under server add the the tomcat server start the service
+* choose restart the server when changing to next program from one program
+
+
+* goto help> Install new software choose your software then scroll to the last select and install xml,........
+* Then create the project as dynamic web project  
+ 
+=================================================================================
+Error
+-----------------------------------------------------------------------------
+The server is already running 
+* Restart the eclipse
+* Then go to services in the windows then stop the tomcat
+* In task manager under startup disable the tomcat
+* then start the server in eclipse
+====================================================================================
+jsp expression <%= some java expression%>
+jsp Scriptlet <%java code %>
+jsp declaration <%!variable or method declaration%>
+==============================================================================
+
+learning process
+1. Under webcontent hello world
+2. Scriptlet-test.jsp
+3. Expression-test.jsp
+4. Declaration-test.jsp
+-------------------------------------
+FunThings.java (this is inside the java resources)
+Fun-test.jsp
+--------------------
+my-header.html
+my-footer.jsp
+homepageMyseries.jsp
+---------------------------
+student-form.html
+student-response.jsp
+----------------------------
+student_dropdown-form.html
+student-dropdown-response.jsp
+-------------------------------
+student_radio-form.html
+student-radio-response.jsp
+-------------------------
+student_checkbox-form.html
+student-checkbox-response.jsp
+---------------------------------------
+**********************************************************************
+SESSION TRACKING
+**********************************************************************
+todo-demo.jsp
+---------------------------------
+cookies
++++++++++++++++++++++
+syntax:
+cookie(String name , String value)
+++++++++++++++++++++++++++++++++++++
+cookies-personalize-form.html
+cookies-personalize-response.jsp
+cookies-homepage.jsp
+----------------------------------------
+JSP tags
+1. custom tag
+2.jsp standard tag library
+
+
